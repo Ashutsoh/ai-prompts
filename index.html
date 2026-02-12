@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="-4Tt8It7qZBf2v5-9Ey8lUafm6V5EFxSpXy4TWY2DPo" />
+    <title>AI Prompt Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .prompt-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        .prompt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .prompt-title {
+            font-size: 1.5em;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .category-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .prompt-description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            font-size: 1.1em;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .output-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+
+        .output-section.active {
+            display: block;
+        }
+
+        .output-section h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .output-text {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .copy-btn {
+            margin-top: 10px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #45a049;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .prompt-selector {
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid white;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .prompt-selector option {
+            color: #333;
+        }
+
+        .auto-rotate-toggle {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .auto-rotate-toggle:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .auto-rotate-toggle.active {
+            background: #4caf50;
+            border-color: #4caf50;
+        }
+
+        .timer-display {
+            color: white;
+            font-size: 0.9em;
+            padding: 8px 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .prompt-card {
+                padding: 20px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .prompt-selector {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ AI Prompt Generator</h1>
+            <p>Generate powerful prompts for various AI tasks</p>
+        </div>
+
+        <div class="controls">
+            <select class="prompt-selector" id="promptSelector">
+                <option value="0">Instagram Reel Caption</option>
+                <option value="1">E-commerce Product Description</option>
+                <option value="2">Resume/CV Improvement</option>
+                <option value="3">Cold Email (Non-Spam)</option>
+                <option value="4">Blog Post Outline</option>
+                <option value="5">Social Media Thread</option>
+                <option value="6">YouTube Video Script</option>
+                <option value="7">LinkedIn Post</option>
+                <option value="8">Email Subject Lines</option>
+                <option value="9">Creative Story Ideas</option>
+            </select>
+            <button class="auto-rotate-toggle" id="autoRotateBtn">🔄 Auto-Rotate: OFF</button>
+            <div class="timer-display" id="timerDisplay">Next: --</div>
+        </div>
+
+        <div class="prompt-card" id="promptCard">
+            <!-- Prompt content will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        const prompts = [
+            {
+                title: "Instagram Reel Caption Generator",
+                category: "Social Media",
+                description: "Create engaging, viral-worthy captions for your Instagram Reels that boost engagement and reach.",
+                inputs: [
+                    { label: "Reel Topic/Theme", type: "text", id: "reelTopic", placeholder: "e.g., Morning coffee routine" },
+                    { label: "Target Audience", type: "text", id: "reelAudience", placeholder: "e.g., Coffee lovers, young professionals" },
+                    { label: "Tone", type: "text", id: "reelTone", placeholder: "e.g., Funny, motivational, educational" },
+                    { label: "Key Message/CTA", type: "text", id: "reelCTA", placeholder: "e.g., Share your coffee tips!" }
+                ],
+                generatePrompt: function(values) {
+                    return `Create 5 engaging Instagram Reel captions for the following:
+
+Topic: ${values.reelTopic}
+Target Audience: ${values.reelAudience}
+Tone: ${values.reelTone}
+Call-to-Action: ${values.reelCTA}
+
+Requirements:
+- Include relevant emojis
+- Add 3-5 trending hashtags
+- Keep it concise but impactful
+- Include a hook in the first line
+- Encourage engagement (comments, shares, saves)
+
+Please provide 5 different caption variations.`;
+                }
+            },
+            {
+                title: "E-commerce Product Description",
+                category: "Marketing",
+                description: "Generate compelling product descriptions that convert browsers into buyers.",
+                inputs: [
+                    { label: "Product Name", type: "text", id: "productName", placeholder: "e.g., Wireless Noise-Canceling Headphones" },
+                    { label: "Key Features", type: "textarea", id: "productFeatures", placeholder: "e.g., 30-hour battery, Bluetooth 5.0, comfortable fit" },
+                    { label: "Target Customer", type: "text", id: "productCustomer", placeholder: "e.g., Music enthusiasts, commuters" },
+                    { label: "Price Point", type: "text", id: "productPrice", placeholder: "e.g., $199 (Premium/Mid-range/Budget)" }
+                ],
+                generatePrompt: function(values) {
+                    return `Write a compelling e-commerce product description for:
+
+Product: ${values.productName}
+Features: ${values.productFeatures}
+Target Customer: ${values.productCustomer}
+Price: ${values.productPrice}
+
+Please include:
+- Attention-grabbing headline
+- Benefit-focused description (not just features)
+- Emotional appeal
+- Social proof elements
+- Clear call-to-action
+- SEO-friendly keywords
+- Bullet points for key features
+
+Make it persuasive and conversion-optimized.`;
+                }
+            },
+            {
+                title: "Resume/CV Improvement",
+                category: "Career",
+                description: "Enhance your resume with powerful, achievement-focused descriptions.",
+                inputs: [
+                    { label: "Job Title/Role", type: "text", id: "jobTitle", placeholder: "e.g., Marketing Manager" },
+                    { label: "Current Description", type: "textarea", id: "currentDesc", placeholder: "Paste your current job description or bullet points" },
+                    { label: "Industry", type: "text", id: "industry", placeholder: "e.g., Tech, Healthcare, Finance" },
+                    { label: "Target Role", type: "text", id: "targetRole", placeholder: "e.g., Senior Marketing Director" }
+                ],
+                generatePrompt: function(values) {
+                    return `Improve this resume/CV entry to be more impactful and achievement-focused:
+
+Current Role: ${values.jobTitle}
+Industry: ${values.industry}
+Target Position: ${values.targetRole}
+
+Current Description:
+${values.currentDesc}
+
+Please:
+- Rewrite using action verbs and quantifiable achievements
+- Highlight impact and results
+- Use metrics and numbers where possible
+- Align with ${values.targetRole} requirements
+- Keep it concise and powerful (3-5 bullet points)
+- Make it ATS-friendly
+- Focus on transferable skills and accomplishments`;
+                }
+            },
+            {
+                title: "Cold Email (Non-Spam)",
+                category: "Outreach",
+                description: "Craft personalized, value-driven cold emails that get responses.",
+                inputs: [
+                    { label: "Recipient's Industry/Role", type: "text", id: "emailRecipient", placeholder: "e.g., SaaS Founder, Marketing Director" },
+                    { label: "Your Value Proposition", type: "textarea", id: "emailValue", placeholder: "What problem do you solve for them?" },
+                    { label: "Common Ground/Hook", type: "text", id: "emailHook", placeholder: "e.g., Noticed your recent article on..." },
+                    { label: "Desired Outcome", type: "text", id: "emailGoal", placeholder: "e.g., 15-min call, Partnership discussion" }
+                ],
+                generatePrompt: function(values) {
+                    return `Write a professional, non-spammy cold email for:
+
+Recipient: ${values.emailRecipient}
+Value Proposition: ${values.emailValue}
+Hook/Common Ground: ${values.emailHook}
+Goal: ${values.emailGoal}
+
+Requirements:
+- Personalized subject line (3 options)
+- Brief, respectful opening
+- Clear value proposition
+- Specific, easy call-to-action
+- Professional but conversational tone
+- Under 150 words
+- No pushy sales language
+- Show you've done research
+- Make it about THEM, not you
+
+Provide the complete email with subject line.`;
+                }
+            },
+            {
+                title: "Blog Post Outline Generator",
+                category: "Content",
+                description: "Create comprehensive blog post outlines that engage and inform readers.",
+                inputs: [
+                    { label: "Blog Topic", type: "text", id: "blogTopic", placeholder: "e.g., 10 Productivity Hacks for Remote Workers" },
+                    { label: "Target Audience", type: "text", id: "blogAudience", placeholder: "e.g., Remote workers, entrepreneurs" },
+                    { label: "Word Count Goal", type: "text", id: "blogLength", placeholder: "e.g., 1500-2000 words" },
+                    { label: "Key Takeaway", type: "text", id: "blogTakeaway", placeholder: "What should readers learn?" }
+                ],
+                generatePrompt: function(values) {
+                    return `Create a detailed blog post outline for:
+
+Topic: ${values.blogTopic}
+Audience: ${values.blogAudience}
+Target Length: ${values.blogLength}
+Key Takeaway: ${values.blogTakeaway}
+
+Please include:
+- SEO-optimized title (3 options)
+- Compelling introduction hook
+- 5-7 main sections with subheadings
+- Key points to cover in each section
+- Data/statistics to include
+- Conclusion with call-to-action
+- Meta description (150 characters)
+
+Make it comprehensive and engaging.`;
+                }
+            },
+            {
+                title: "Social Media Thread Creator",
+                category: "Social Media",
+                description: "Craft engaging Twitter/X threads that drive engagement and followers.",
+                inputs: [
+                    { label: "Thread Topic", type: "text", id: "threadTopic", placeholder: "e.g., How I grew my business to 6 figures" },
+                    { label: "Number of Tweets", type: "text", id: "threadLength", placeholder: "e.g., 8-10 tweets" },
+                    { label: "Key Points", type: "textarea", id: "threadPoints", placeholder: "Main points you want to cover" },
+                    { label: "Target Outcome", type: "text", id: "threadGoal", placeholder: "e.g., Drive newsletter signups, increase followers" }
+                ],
+                generatePrompt: function(values) {
+                    return `Create an engaging Twitter/X thread about:
+
+Topic: ${values.threadTopic}
+Length: ${values.threadLength}
+Key Points: ${values.threadPoints}
+Goal: ${values.threadGoal}
+
+Requirements:
+- Hook in the first tweet (must grab attention)
+- Each tweet should be 1-2 sentences max
+- Use storytelling and personal anecdotes
+- Include practical takeaways
+- Add strategic line breaks for readability
+- End with a strong CTA linking to ${values.threadGoal}
+- Number each tweet (1/10, 2/10, etc.)
+- Use emojis sparingly but effectively
+
+Make it valuable and shareable.`;
+                }
+            },
+            {
+                title: "YouTube Video Script",
+                category: "Video Content",
+                description: "Generate engaging YouTube video scripts with hooks, content, and CTAs.",
+                inputs: [
+                    { label: "Video Topic", type: "text", id: "videoTopic", placeholder: "e.g., 5 Beginner Photography Tips" },
+                    { label: "Video Length", type: "text", id: "videoLength", placeholder: "e.g., 8-10 minutes" },
+                    { label: "Target Viewers", type: "text", id: "videoAudience", placeholder: "e.g., Aspiring photographers, beginners" },
+                    { label: "Channel Vibe", type: "text", id: "videoTone", placeholder: "e.g., Educational, entertaining, casual" }
+                ],
+                generatePrompt: function(values) {
+                    return `Create a YouTube video script for:
+
+Topic: ${values.videoTopic}
+Duration: ${values.videoLength}
+Audience: ${values.videoAudience}
+Style: ${values.videoTone}
+
+Include:
+- Hook (first 5 seconds to retain viewers)
+- Introduction with channel branding
+- Main content sections with timestamps
+- Engaging transitions between sections
+- B-roll suggestions
+- On-screen text/graphics ideas
+- Subscribe reminder (natural placement)
+- Conclusion and call-to-action
+- Outro
+
+Make it engaging and retention-focused with pattern interrupts.`;
+                }
+            },
+            {
+                title: "LinkedIn Post Generator",
+                category: "Professional",
+                description: "Create thought-leadership LinkedIn posts that build your professional brand.",
+                inputs: [
+                    { label: "Post Theme", type: "text", id: "linkedinTheme", placeholder: "e.g., Leadership lesson, Industry insight" },
+                    { label: "Your Expertise/Industry", type: "text", id: "linkedinIndustry", placeholder: "e.g., Digital Marketing, Finance" },
+                    { label: "Personal Story/Example", type: "textarea", id: "linkedinStory", placeholder: "Share a relevant experience or insight" },
+                    { label: "Post Goal", type: "text", id: "linkedinGoal", placeholder: "e.g., Start conversation, establish authority" }
+                ],
+                generatePrompt: function(values) {
+                    return `Write a professional LinkedIn post about:
+
+Theme: ${values.linkedinTheme}
+Industry: ${values.linkedinIndustry}
+Story/Example: ${values.linkedinStory}
+Goal: ${values.linkedinGoal}
+
+Requirements:
+- Strong hook in the first line
+- Personal or professional story
+- Actionable insights or lessons
+- Professional but conversational tone
+- Strategic line breaks for readability
+- 150-250 words
+- End with a question to encourage comments
+- 3-5 relevant hashtags
+- Avoid corporate jargon
+
+Make it authentic and engaging.`;
+                }
+            },
+            {
+                title: "Email Subject Line Generator",
+                category: "Email Marketing",
+                description: "Create high-converting email subject lines that increase open rates.",
+                inputs: [
+                    { label: "Email Purpose", type: "text", id: "emailPurpose", placeholder: "e.g., Product launch, Newsletter, Promotion" },
+                    { label: "Main Benefit/Offer", type: "text", id: "emailOffer", placeholder: "e.g., 30% off, Free guide, Exclusive access" },
+                    { label: "Target Audience", type: "text", id: "emailTargetAudience", placeholder: "e.g., Existing customers, Newsletter subscribers" },
+                    { label: "Tone/Style", type: "text", id: "emailSubjectTone", placeholder: "e.g., Urgent, Curious, Friendly, Professional" }
+                ],
+                generatePrompt: function(values) {
+                    return `Generate 10 high-converting email subject lines for:
+
+Purpose: ${values.emailPurpose}
+Offer/Benefit: ${values.emailOffer}
+Audience: ${values.emailTargetAudience}
+Tone: ${values.emailSubjectTone}
+
+Provide variety using these approaches:
+- Curiosity-driven (2 examples)
+- Benefit-focused (2 examples)
+- Urgency/FOMO (2 examples)
+- Personalized (2 examples)
+- Question-based (2 examples)
+
+Requirements:
+- 40-50 characters max
+- No all caps or excessive punctuation
+- A/B testing worthy
+- Avoid spam trigger words
+- Mobile-friendly
+
+Also explain which would likely perform best and why.`;
+                }
+            },
+            {
+                title: "Creative Story Ideas",
+                category: "Creative Writing",
+                description: "Generate unique story concepts and plot ideas for your next creative project.",
+                inputs: [
+                    { label: "Genre", type: "text", id: "storyGenre", placeholder: "e.g., Sci-fi, Romance, Mystery, Fantasy" },
+                    { label: "Setting/Era", type: "text", id: "storySetting", placeholder: "e.g., Future dystopia, Medieval times, Modern day" },
+                    { label: "Theme/Message", type: "text", id: "storyTheme", placeholder: "e.g., Redemption, Coming of age, Good vs Evil" },
+                    { label: "Unique Element", type: "text", id: "storyElement", placeholder: "e.g., Time travel, Magic system, Plot twist idea" }
+                ],
+                generatePrompt: function(values) {
+                    return `Generate 3 unique creative story ideas with:
+
+Genre: ${values.storyGenre}
+Setting: ${values.storySetting}
+Theme: ${values.storyTheme}
+Unique Element: ${values.storyElement}
+
+For each story provide:
+- Compelling title
+- Protagonist description and motivation
+- Central conflict
+- Unique hook/twist
+- Major plot points (beginning, middle, end)
+- Supporting character ideas
+- Potential themes to explore
+- Why this story would resonate with readers
+
+Make them original, engaging, and distinct from each other.`;
+                }
+            }
+        ];
+
+        let currentPromptIndex = 0;
+        let autoRotate = false;
+        let rotateInterval;
+        let countdownInterval;
+        let secondsRemaining = 30;
+
+        const promptCard = document.getElementById('promptCard');
+        const promptSelector = document.getElementById('promptSelector');
+        const autoRotateBtn = document.getElementById('autoRotateBtn');
+        const timerDisplay = document.getElementById('timerDisplay');
+
+        function renderPrompt(index) {
+            currentPromptIndex = index;
+            const prompt = prompts[index];
+            
+            let inputsHTML = prompt.inputs.map(input => {
+                if (input.type === 'textarea') {
+                    return `
+                        <div class="input-group">
+                            <label for="${input.id}">${input.label}</label>
+                            <textarea id="${input.id}" placeholder="${input.placeholder}"></textarea>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="input-group">
+                            <label for="${input.id}">${input.label}</label>
+                            <input type="${input.type}" id="${input.id}" placeholder="${input.placeholder}">
+                        </div>
+                    `;
+                }
+            }).join('');
+
+            promptCard.innerHTML = `
+                <div class="prompt-header">
+                    <div class="prompt-title">${prompt.title}</div>
+                    <div class="category-badge">${prompt.category}</div>
+                </div>
+                <div class="prompt-description">${prompt.description}</div>
+                ${inputsHTML}
+                <button class="generate-btn" onclick="generatePrompt()">Generate AI Prompt</button>
+                <div class="output-section" id="outputSection">
+                    <h3>Generated Prompt:</h3>
+                    <div class="output-text" id="outputText"></div>
+                    <button class="copy-btn" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+                </div>
+            `;
+
+            promptSelector.value = index;
+            resetTimer();
+        }
+
+        function generatePrompt() {
+            const prompt = prompts[currentPromptIndex];
+            const values = {};
+            
+            prompt.inputs.forEach(input => {
+                const element = document.getElementById(input.id);
+                values[input.id] = element.value || `[Your ${input.label.toLowerCase()}]`;
+            });
+
+            const generatedPrompt = prompt.generatePrompt(values);
+            
+            document.getElementById('outputText').textContent = generatedPrompt;
+            document.getElementById('outputSection').classList.add('active');
+        }
+
+        function copyToClipboard() {
+            const text = document.getElementById('outputText').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const copyBtn = event.target;
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '✅ Copied!';
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                }, 2000);
+            });
+        }
+
+        function toggleAutoRotate() {
+            autoRotate = !autoRotate;
+            
+            if (autoRotate) {
+                autoRotateBtn.textContent = '🔄 Auto-Rotate: ON';
+                autoRotateBtn.classList.add('active');
+                startRotation();
+            } else {
+                autoRotateBtn.textContent = '🔄 Auto-Rotate: OFF';
+                autoRotateBtn.classList.remove('active');
+                stopRotation();
+            }
+        }
+
+        function startRotation() {
+            resetTimer();
+            rotateInterval = setInterval(() => {
+                currentPromptIndex = (currentPromptIndex + 1) % prompts.length;
+                renderPrompt(currentPromptIndex);
+            }, 30000);
+
+            countdownInterval = setInterval(() => {
+                secondsRemaining--;
+                timerDisplay.textContent = `Next: ${secondsRemaining}s`;
+                
+                if (secondsRemaining <= 0) {
+                    resetTimer();
+                }
+            }, 1000);
+        }
+
+        function stopRotation() {
+            clearInterval(rotateInterval);
+            clearInterval(countdownInterval);
+            timerDisplay.textContent = 'Next: --';
+        }
+
+        function resetTimer() {
+            secondsRemaining = 30;
+            if (autoRotate) {
+                timerDisplay.textContent = `Next: ${secondsRemaining}s`;
+            }
+        }
+
+        promptSelector.addEventListener('change', (e) => {
+            renderPrompt(parseInt(e.target.value));
+            if (autoRotate) {
+                stopRotation();
+                autoRotate = false;
+                autoRotateBtn.textContent = '🔄 Auto-Rotate: OFF';
+                autoRotateBtn.classList.remove('active');
+            }
+        });
+
+        autoRotateBtn.addEventListener('click', toggleAutoRotate);
+
+        // Initialize with first prompt
+        renderPrompt(0);
+    </script>
+</body>
+</html>
